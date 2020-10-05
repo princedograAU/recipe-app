@@ -13,4 +13,4 @@ filters-django = "==1.0.5"
 django-decouple = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.7"
