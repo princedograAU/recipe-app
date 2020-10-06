@@ -29,7 +29,6 @@ class PublicUserApiTests(TestCase):
         payload = {
             'email': 'test@test.com',
             'password': 'password@123',
-            'name': 'Test'
         }
 
         response = self.client.post(CREATE_USER_URL, payload)
@@ -43,7 +42,7 @@ class PublicUserApiTests(TestCase):
     def test_user_exists(self):
         """Test creating user that already exists fails"""
 
-        payload = {'email':'test@test.com', 'password': 'password@123', 'name': 'Test'}
+        payload = {'email':'test@test.com', 'password': 'password@123'}
 
         create_user(**payload)
 
@@ -52,7 +51,7 @@ class PublicUserApiTests(TestCase):
 
     def test_password_too_short(self):
         """Test that the password must be more than 5 characters"""
-        payload = {'email':'test@test.com', 'password': 'pwd', 'name': 'Test'}
+        payload = {'email':'test@test.com', 'password': 'pwd'}
 
         response = self.client.post(CREATE_USER_URL, payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -65,7 +64,7 @@ class PublicUserApiTests(TestCase):
     def test_create_token_for_user(self):
         """Test that a token is created for the user"""
 
-        payload = {'email':'test@test.com', 'password': 'password@123', 'name': 'Test'}
+        payload = {'email':'test@test.com', 'password': 'password@123'}
 
         create_user(**payload)
 
@@ -89,7 +88,7 @@ class PublicUserApiTests(TestCase):
     def test_create_token_no_user(self):
         """Test that token is not created if user doesn't exists"""
 
-        payload = {'email':'test@test.com', 'password': 'password@123', 'name': 'Test'}
+        payload = {'email':'test@test.com', 'password': 'password@123'}
 
         response = self.client.post(TOKEN_URL, payload)
 
@@ -117,8 +116,7 @@ class PrivateUserApiTests(TestCase):
     def setUp(self):
         self.user = create_user(
             email='test@test.com',
-            password='password@123',
-            name='Test'
+            password='password@123'
         )
 
         self.client = APIClient()
@@ -131,7 +129,6 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {
-            'name': self.user.name,
             'email': self.user.email
         })
 
@@ -144,11 +141,11 @@ class PrivateUserApiTests(TestCase):
 
     def test_update_user_profile(self):
         """Test updating the user profile for authenticated user"""
-        payload = {'name':'new Name', 'password': 'newpassword@123'}
+        payload = {'password': 'newpassword@123'}
 
         response = self.client.patch(ME_URL, payload)
 
         self.user.refresh_from_db()
-        self.assertEqual(self.user.name, payload['name'])
+        # self.assertEqual(self.user.name, payload['name'])
         self.assertTrue(self.user.check_password(payload['password']))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
